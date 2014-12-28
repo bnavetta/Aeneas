@@ -1,0 +1,15 @@
+plugins {
+	id 'java'
+	id 'us.kirchmeier.capsule' version '0.10.0'
+	id 'io.spring.dependency-management' version '0.3.0.RELEASE'
+}
+
+dependencies {
+	compile 'org.apache.zookeeper:zookeeper'
+	compile 'org.mousio:etcd4j'
+}
+
+task capsule(type: FatCapsule) {
+	applicationClass 'com.bennavetta.aeneas.Main'
+}
+build.dependsOn capsule

@@ -1,1 +1,3 @@
 rootProject.name = 'aeneas'
+
+include 'zookeeper:configurator'

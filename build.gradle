@@ -9,6 +9,11 @@ buildscript {
 }
 
 allprojects {
+	repositories {
+		jcenter()
+		mavenCentral()
+	}
+
 	apply plugin: 'com.github.hierynomus.license'
 
 	license {
@@ -20,7 +25,16 @@ allprojects {
 	}
 
 	tasks.withType(nl.javadude.gradle.plugins.license.License) {
-		check.dependsOn it
+		tasks.check.dependsOn it
+	}
+
+	plugins.withId('io.spring.dependency-management') {
+		dependencyManagement {
+			dependencies {
+				'org.mousio:etcd4j' '2.0.+'
+				'org.apache.zookeeper:zookeeper' '3.5.+'
+			}
+		}
 	}
 }
 
