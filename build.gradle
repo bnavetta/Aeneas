@@ -1,0 +1,30 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+	}
+}
+
+allprojects {
+	apply plugin: 'com.github.hierynomus.license'
+
+	license {
+		header = rootProject.file('config/HEADER')
+		ignoreFailures = true
+		skipExistingHeaders = true
+
+		ext.year = Calendar.instance.get(Calendar.YEAR)
+	}
+
+	tasks.withType(nl.javadude.gradle.plugins.license.License) {
+		check.dependsOn it
+	}
+}
+
+
+wrapper {
+	gradleVersion = '2.2.1'
+}
