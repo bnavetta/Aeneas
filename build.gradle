@@ -9,6 +9,10 @@ buildscript {
 }
 
 allprojects {
+	apply plugin: 'idea'
+	apply plugin: 'eclipse'
+
+
 	repositories {
 		jcenter()
 		mavenCentral()
@@ -28,12 +32,37 @@ allprojects {
 		tasks.check.dependsOn it
 	}
 
+	plugins.withId('java') {
+		sourceCompatibility = 1.8
+		targetCompatibility = 1.8
+	}
+
 	plugins.withId('io.spring.dependency-management') {
 		dependencyManagement {
 			dependencies {
 				'org.mousio:etcd4j' '2.0.+'
 				'org.apache.zookeeper:zookeeper' '3.5.+'
+				'com.google.guava:guava' '18.+'
+
+				dependencySet(group: 'org.slf4j', version: '1.7.+') {
+					entry 'slf4j-api'
+					entry 'slf4j-simple'
+				}
+
+				dependencySet(group: 'io.netty', version: '4.1.0.Beta3') {
+					entry 'netty-codec-http'
+					entry 'netty-transport'
+					entry 'netty-buffer'
+					entry 'netty-common'
+					entry 'netty-codec'
+				}
 			}
+		}
+	}
+
+	plugins.withId('de.gesellix.docker') {
+		docker {
+			dockerHost = System.env.DOCKER_HOST.replaceAll("^tcp://", "http://")
 		}
 	}
 }
