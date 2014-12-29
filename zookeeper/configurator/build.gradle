@@ -23,7 +23,7 @@ dependencies {
 }
 
 task capsule(type: FatCapsule) {
-	applicationClass 'com.bennavetta.aeneas.Main'
+	applicationClass 'com.bennavetta.aeneas.zookeeper.configurator.Main'
 }
 
 task dockerImage(type: DockerBuildTask) {

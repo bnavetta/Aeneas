@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bennavetta.aeneas;
+package com.bennavetta.aeneas.zookeeper.configurator;
 
 import mousio.etcd4j.EtcdClient;
-import mousio.etcd4j.promises.EtcdResponsePromise;
-import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.concurrent.TimeoutException;
 
 public class Main
 {

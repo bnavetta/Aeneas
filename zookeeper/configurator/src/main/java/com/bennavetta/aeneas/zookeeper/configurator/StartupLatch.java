@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.bennavetta.aeneas;
+package com.bennavetta.aeneas.zookeeper.configurator;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
