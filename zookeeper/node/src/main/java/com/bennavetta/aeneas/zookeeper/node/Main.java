@@ -76,6 +76,7 @@ public class Main
 		{
 			try
 			{
+				// Do this in a shutdown hook (Runtime.getRuntime().addShutdownHook)
 				zookeeper.unregister();
 			}
 			catch (EtcdException | TimeoutException | IOException e)
