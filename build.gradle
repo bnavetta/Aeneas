@@ -64,6 +64,12 @@ allprojects {
 					entry 'jetty-server'
 					entry 'jetty-http'
 				}
+
+				dependencySet(group: 'com.fasterxml.jackson.core', version: '2.4+') {
+					entry 'jackson-databind'
+					entry 'jackson-core'
+					entry 'jackson-annotations'
+				}
 			}
 		}
 	}
