@@ -2,6 +2,7 @@ package com.bennavetta.aeneas.zookeeper.impl.etcd;
 
 import com.bennavetta.aeneas.zookeeper.IdGenerator;
 import com.bennavetta.aeneas.zookeeper.ZkException;
+import com.google.common.base.Preconditions;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
@@ -22,7 +23,7 @@ public class EtcdIdGenerator implements IdGenerator
 
 	public EtcdIdGenerator(EtcdClient etcd)
 	{
-		this.etcd = etcd;
+		this.etcd = Preconditions.checkNotNull(etcd);
 	}
 
 	/**
@@ -49,6 +50,7 @@ public class EtcdIdGenerator implements IdGenerator
 				createDirectory();
 				return generateId();
 			}
+			throw new ZkException("Etcd error generating id", e);
 		}
 	}
 
