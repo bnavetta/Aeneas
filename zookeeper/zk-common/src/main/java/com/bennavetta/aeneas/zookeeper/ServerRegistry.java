@@ -46,4 +46,11 @@ public interface ServerRegistry
 	 * @throws ZkException if unable to obtain a server listing
 	 */
 	public ImmutableList<ZkServer> getServers() throws ZkException;
+
+	/**
+	 * Create a new watcher that will monitor the ZooKeeper server registry for changes.
+	 * @param listener the listener that will be called when the registry is modified
+	 * @return an unstarted watcher
+	 */
+	public ServerRegistryWatcher watch(ServerRegistryWatcher.Listener listener);
 }
