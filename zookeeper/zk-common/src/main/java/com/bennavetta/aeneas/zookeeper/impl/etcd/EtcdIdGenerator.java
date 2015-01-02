@@ -6,6 +6,8 @@ import com.google.common.base.Preconditions;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -18,6 +20,8 @@ import java.util.concurrent.TimeoutException;
 public class EtcdIdGenerator implements IdGenerator
 {
 	public static final String IDGEN_DIR = "/aeneas/zookeeper/idgen";
+
+	private static final Logger LOG = LoggerFactory.getLogger(EtcdIdGenerator.class);
 
 	private final EtcdClient etcd;
 
@@ -37,7 +41,9 @@ public class EtcdIdGenerator implements IdGenerator
 			EtcdKeysResponse response = etcd.post(IDGEN_DIR, "").send().get();
 
 			String key = response.node.key;
-			return Integer.parseInt(key.substring(key.lastIndexOf('/') + 1));
+			String id = key.substring(key.lastIndexOf('/') + 1);
+			LOG.debug("Allocated id {} from etcd", id);
+			return Integer.parseInt(id);
 		}
 		catch (IOException | TimeoutException e)
 		{
@@ -58,6 +64,7 @@ public class EtcdIdGenerator implements IdGenerator
 	{
 		try
 		{
+			LOG.debug("Creating id generation directory");
 			etcd.putDir(IDGEN_DIR).send().get();
 		}
 		catch (IOException | EtcdException | TimeoutException e)

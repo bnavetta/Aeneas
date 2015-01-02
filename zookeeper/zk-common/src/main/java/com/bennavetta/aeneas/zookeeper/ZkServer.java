@@ -1,5 +1,6 @@
 package com.bennavetta.aeneas.zookeeper;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.HostSpecifier;
 
@@ -58,6 +59,19 @@ public final class ZkServer
 	public HostAndPort toClientConnection()
 	{
 		return HostAndPort.fromParts(address.toString(), clientPort);
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("id", id)
+				.add("address", address)
+				.add("role", role)
+				.add("peerPort", peerPort)
+				.add("electionPort", electionPort)
+				.add("clientPort", clientPort)
+				.toString();
 	}
 
 	public int getId()

@@ -11,6 +11,8 @@ import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import mousio.etcd4j.responses.EtcdKeysResponse.EtcdNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -21,6 +23,8 @@ import java.util.concurrent.TimeoutException;
 public class EtcdServerRegistry implements ServerRegistry
 {
 	public static final String REGISTRY_DIR = "aeneas/zookeeper/servers";
+	
+	private static final Logger LOG = LoggerFactory.getLogger(EtcdServerRegistry.class);
 
 	private EtcdClient etcd;
 	private ObjectMapper objectMapper;
@@ -44,6 +48,7 @@ public class EtcdServerRegistry implements ServerRegistry
 	{
 		try
 		{
+			LOG.debug("Registering server {}", server);
 			String key = String.valueOf(server.getId());
 			String value = objectMapper.writeValueAsString(server);
 
@@ -78,6 +83,7 @@ public class EtcdServerRegistry implements ServerRegistry
 	{
 		try
 		{
+			LOG.debug("Deregistering server {}", server);
 			String key = String.valueOf(server.getId());
 			etcd.delete(REGISTRY_DIR + "/" + key).send().get();
 		}
@@ -107,6 +113,7 @@ public class EtcdServerRegistry implements ServerRegistry
 	{
 		try
 		{
+			LOG.debug("Retrieving server listing");
 			EtcdKeysResponse response = etcd.getDir(REGISTRY_DIR).send().get();
 
 			if(response.node.nodes == null)
@@ -118,7 +125,9 @@ public class EtcdServerRegistry implements ServerRegistry
 
 			for(EtcdNode node : response.node.nodes)
 			{
-				servers.add(objectMapper.readValue(node.value, ZkServer.class));
+				ZkServer server = objectMapper.readValue(node.value, ZkServer.class);
+				LOG.debug("Retrieved server {}", server);
+				servers.add(server);
 			}
 
 			return servers.build();
