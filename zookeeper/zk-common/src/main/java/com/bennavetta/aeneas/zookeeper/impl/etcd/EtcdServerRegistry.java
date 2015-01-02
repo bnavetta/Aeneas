@@ -16,6 +16,8 @@
 package com.bennavetta.aeneas.zookeeper.impl.etcd;
 
 import com.bennavetta.aeneas.zookeeper.ServerRegistry;
+import com.bennavetta.aeneas.zookeeper.ServerRegistryWatcher;
+import com.bennavetta.aeneas.zookeeper.ServerRegistryWatcher.Listener;
 import com.bennavetta.aeneas.zookeeper.ZkException;
 import com.bennavetta.aeneas.zookeeper.ZkServer;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -166,5 +168,11 @@ public class EtcdServerRegistry implements ServerRegistry
 		{
 			throw new ZkException("Unable to communicate with etcd");
 		}
+	}
+
+	@Override
+	public ServerRegistryWatcher watch(Listener listener)
+	{
+		return new EtcdServerRegistryWatcher(etcd, listener, objectMapper);
 	}
 }

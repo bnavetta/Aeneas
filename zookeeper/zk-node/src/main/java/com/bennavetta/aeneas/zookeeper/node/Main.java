@@ -83,6 +83,7 @@ public class Main
 			try
 			{
 				zookeeper.deregister();
+				zookeeper.kill();
 				etcd.close();
 			}
 			catch (ZkException e)
