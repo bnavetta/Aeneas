@@ -15,7 +15,13 @@
  */
 package com.bennavetta.aeneas.zookeeper.node;
 
+import com.bennavetta.aeneas.zookeeper.IdGenerator;
+import com.bennavetta.aeneas.zookeeper.ServerRegistry;
+import com.bennavetta.aeneas.zookeeper.ZkException;
+import com.bennavetta.aeneas.zookeeper.ZkServer;
+import com.bennavetta.aeneas.zookeeper.ZkServer.Role;
 import com.google.common.base.Preconditions;
+import com.google.common.net.HostSpecifier;
 import mousio.etcd4j.responses.EtcdException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,16 +42,19 @@ public class ZooKeeper
 
 	private final Path installDir;
 
-	private final Registration registration;
+	private final ServerRegistry registry;
+	private final IdGenerator idGenerator;
 	private Configuration configuration;
-	private String serverSpec;
+	private ZkServer server;
 
 	private Process process;
 
-	public ZooKeeper(Path installDir, Registration registration)
+	public ZooKeeper(Path installDir, ServerRegistry registry, IdGenerator idGenerator)
 	{
-		this.installDir = installDir;
-		this.registration = registration;
+		this.installDir = Preconditions.checkNotNull(installDir);
+		this.registry = Preconditions.checkNotNull(registry);
+		this.idGenerator = Preconditions.checkNotNull(idGenerator);
+
 		Preconditions.checkArgument(isValidLocation(), "Must specify a valid ZooKeeper installation");
 	}
 
@@ -55,31 +64,31 @@ public class ZooKeeper
 		return Files.isExecutable(serverBin);
 	}
 
-	public void configure() throws IOException
+	public void configure() throws IOException, ZkException
 	{
 		LOG.info("Configuring ZooKeeper installation in {}", installDir);
 
 		configuration = new Configuration();
 		configuration.addDefaults();
 		configuration.addFromEnvironment();
-		try
-		{
-			configuration.addServers(registration);
-			configuration.obtainId(registration);
-		}
-		catch (EtcdException | TimeoutException e)
-		{
-			throw new IOException("Communicating with etcd failed", e);
-		}
 
-		String serverAddress = Registration.getLocalAddress().getHostAddress();
+		configuration.addServers(registry);
+		configuration.setMyId(Util.obtainId(idGenerator, configuration));
+
+		String serverAddress = Util.getLocalAddress().getHostAddress();
 
 		int peerPort = Integer.parseInt(System.getenv().getOrDefault("PEER_PORT", "2888"));
 		int electionPort = Integer.parseInt(System.getenv().getOrDefault("ELECTION_PORT", "3888"));
 		int clientPort = Integer.parseInt(System.getenv().getOrDefault("CLIENT_PORT", "2181"));
 
-		serverSpec = String.format("%s:%d:%d;%d", serverAddress, peerPort, electionPort, clientPort);
-		configuration.setDynamic("server." + configuration.getMyId(), serverSpec);
+		server = new ZkServer(configuration.getMyId(),
+		                               HostSpecifier.fromValid(serverAddress),
+		                               Role.defaultRole(),
+		                               peerPort,
+		                               electionPort,
+		                               clientPort);
+
+		configuration.setDynamic("server." + server.getId(), server.toConnectionSpec());
 
 		Path configRoot = installDir.resolve("conf");
 		Files.createDirectories(configRoot);
@@ -89,12 +98,12 @@ public class ZooKeeper
 
 	}
 
-	public void launch() throws IOException, TimeoutException, EtcdException
+	public void launch() throws ZkException, IOException
 	{
 		Preconditions.checkState(process == null, "Already running");
 		Preconditions.checkState(configuration != null, "ZooKeeper not configured");
 
-		LOG.info("Starting ZooKeeper with ID {} and server specification {}", configuration.getMyId(), serverSpec);
+		LOG.info("Starting ZooKeeper with server specification {}", server.toServerSpec());
 		process = new ProcessExecutor()
 				.command(installDir.resolve("bin/zkServer.sh").toAbsolutePath().toString(), "start-foreground")
 				.redirectError(System.err)
@@ -102,8 +111,7 @@ public class ZooKeeper
 				.destroyOnExit()
 				.start().getProcess();
 
-		registration.register(configuration.getMyId(), serverSpec);
-		registration.startCluster();
+		registry.register(server);
 	}
 
 	public void kill()
@@ -118,8 +126,8 @@ public class ZooKeeper
 		return process.waitFor();
 	}
 
-	public void unregister() throws EtcdException, TimeoutException, IOException
+	public void deregister() throws ZkException
 	{
-		registration.unregister(configuration.getMyId());
+		registry.deregister(server);
 	}
 }

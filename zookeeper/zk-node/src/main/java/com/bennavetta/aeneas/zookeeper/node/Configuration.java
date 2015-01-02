@@ -15,6 +15,9 @@
  */
 package com.bennavetta.aeneas.zookeeper.node;
 
+import com.bennavetta.aeneas.zookeeper.IdGenerator;
+import com.bennavetta.aeneas.zookeeper.ServerRegistry;
+import com.bennavetta.aeneas.zookeeper.ZkException;
 import com.google.common.base.Charsets;
 import mousio.etcd4j.responses.EtcdException;
 import org.slf4j.Logger;
@@ -67,10 +70,15 @@ public class Configuration
 		return myId;
 	}
 
-	public void addServers(Registration registration) throws EtcdException, TimeoutException, IOException
+	public void setMyId(int id)
 	{
-		registration.getNodes().forEach((id, spec) -> {
-			setDynamic("server." + id, spec);
+		myId = id;
+	}
+
+	public void addServers(ServerRegistry registry) throws ZkException
+	{
+		registry.getServers().forEach(server -> {
+			setDynamic("server." + server.getId(), server.toConnectionSpec());
 		});
 	}
 
@@ -115,26 +123,9 @@ public class Configuration
 		LOG.debug("Set defaults: {}", staticConfiguration);
 	}
 
-	/**
-	 * Get the node ID from ZooKeeper, allocating a new one if necessary
-	 * @param registration
-	 */
-	public void obtainId(Registration registration) throws EtcdException, TimeoutException, IOException
-	{
-		OptionalInt existingId = registration.getId();
-		if(existingId.isPresent())
-		{
-			myId = existingId.getAsInt();
-		}
-		else
-		{
-			myId = registration.allocateId();
-		}
-	}
-
 	public void writeId(Path idPath) throws IOException
 	{
-		LOG.debug("Writing ID {} to {}", myId, idPath);
+		LOG.debug("Writing id {} to {}", myId, idPath);
 		Files.write(idPath, String.valueOf(myId).getBytes(Charsets.US_ASCII));
 	}
 

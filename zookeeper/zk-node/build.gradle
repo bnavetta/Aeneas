@@ -8,8 +8,7 @@ plugins {
 }
 
 dependencies {
-	compile 'org.mousio:etcd4j'
-	compile 'io.netty:netty-codec-http' // because of how etcd4j sets up dependencies
+	compile project(':zookeeper:zk-common')
 
 	compile 'org.zeroturnaround:zt-exec:1.7+'
 	compile 'com.google.guava:guava'
@@ -26,6 +25,7 @@ task dockerImage(type: DockerBuildTask) {
 	dependsOn capsule
 	imageName = 'zookeeper-node'
 	buildContextDirectory = projectDir
+	inputs.file capsule.archivePath
 }
 
 build.dependsOn dockerImage

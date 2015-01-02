@@ -15,8 +15,12 @@
  */
 package com.bennavetta.aeneas.zookeeper.node;
 
+import com.bennavetta.aeneas.zookeeper.IdGenerator;
+import com.bennavetta.aeneas.zookeeper.ServerRegistry;
+import com.bennavetta.aeneas.zookeeper.ZkException;
+import com.bennavetta.aeneas.zookeeper.impl.etcd.EtcdIdGenerator;
+import com.bennavetta.aeneas.zookeeper.impl.etcd.EtcdServerRegistry;
 import mousio.etcd4j.EtcdClient;
-import mousio.etcd4j.responses.EtcdException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +28,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Launch and register a ZooKeeper node
@@ -41,14 +44,16 @@ public class Main
 
 		LOG.info("Connected to etcd - {}", etcd.getVersion());
 
-		Registration registration = new Registration(etcd);
-		ZooKeeper zookeeper = new ZooKeeper(Paths.get(System.getenv().getOrDefault("ZOO_DIR", "/opt/zookeeper")), registration);
+		ServerRegistry registry = new EtcdServerRegistry(etcd);
+		IdGenerator idGenerator = new EtcdIdGenerator(etcd);
+		ZooKeeper zookeeper = new ZooKeeper(Paths.get(System.getenv().getOrDefault("ZOO_DIR", "/opt/zookeeper")),
+		                                    registry, idGenerator);
 
 		try
 		{
 			zookeeper.configure();
 		}
-		catch (IOException e)
+		catch (IOException | ZkException e)
 		{
 			LOG.error("Error configuring ZooKeeper", e);
 			System.exit(1);
@@ -58,7 +63,7 @@ public class Main
 		{
 			zookeeper.launch();
 		}
-		catch (IOException | TimeoutException | EtcdException e)
+		catch (IOException | ZkException e)
 		{
 			LOG.error("Error starting ZooKeeper", e);
 			System.exit(1);
@@ -71,27 +76,23 @@ public class Main
 		catch (InterruptedException e)
 		{
 			LOG.error("Error waiting for ZooKeeper to complete", e);
-		}
-		finally
-		{
-			try
-			{
-				// Do this in a shutdown hook (Runtime.getRuntime().addShutdownHook)
-				zookeeper.unregister();
-			}
-			catch (EtcdException | TimeoutException | IOException e)
-			{
-				LOG.error("Error unregistering ZooKeeper node", e);
-			}
+			System.exit(1);
 		}
 
-		try
-		{
-			etcd.close();
-		}
-		catch (IOException e)
-		{
-			LOG.error("Error closing etcd connection", e);
-		}
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try
+			{
+				zookeeper.deregister();
+				etcd.close();
+			}
+			catch (ZkException e)
+			{
+				LOG.error("Error deregistering ZooKeeper node", e);
+			}
+			catch (IOException e)
+			{
+				LOG.error("Error closing etcd connection", e);
+			}
+		}));
 	}
 }

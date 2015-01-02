@@ -1,5 +1,26 @@
+/**
+ * Copyright 2015 Benjamin Navetta
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.bennavetta.aeneas.zookeeper;
 
+import com.bennavetta.aeneas.zookeeper.impl.HostSpecifierSerializer;
+import com.bennavetta.aeneas.zookeeper.impl.HostSpecifierDeserializer;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.MoreObjects;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.HostSpecifier;
@@ -13,13 +34,22 @@ import com.google.common.net.HostSpecifier;
 public final class ZkServer
 {
 	private final int id;
+
+	@JsonSerialize(using = HostSpecifierSerializer.class)
+	@JsonDeserialize(using = HostSpecifierDeserializer.class)
 	private final HostSpecifier address;
 	private final Role role;
 	private final int peerPort;
 	private final int electionPort;
 	private final int clientPort;
 
-	public ZkServer(int id, HostSpecifier address, Role role, int peerPort, int electionPort, int clientPort)
+	@JsonCreator
+	public ZkServer(@JsonProperty("id") int id,
+	                @JsonProperty("address") HostSpecifier address,
+	                @JsonProperty("role") Role role,
+	                @JsonProperty("peerPort") int peerPort,
+	                @JsonProperty("electionPort") int electionPort,
+	                @JsonProperty("clientPort") int clientPort)
 	{
 		this.id = id;
 		this.address = address;
@@ -118,7 +148,7 @@ public final class ZkServer
 
 		public static Role defaultRole()
 		{
-			return OBSERVER;
+			return PARTICIPANT;
 		}
 	}
 }

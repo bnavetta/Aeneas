@@ -11,7 +11,7 @@ RUN set -x \
     && tar -xzf zookeeper.tar.gz -C /opt/zookeeper --strip-components=1 \
     && rm zookeeper.tar.gz
 
-ADD build/libs/node-capsule.jar /opt/node.jar
+ADD build/libs/zk-node-capsule.jar /opt/node.jar
 
 RUN mkdir /var/lib/zookeeper
 VOLUME /var/lib/zookeeper
