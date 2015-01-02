@@ -1,5 +1,5 @@
 rootProject.name = 'aeneas'
 
-include 'zookeeper:configurator'
+include 'zookeeper:zk-manager'
 include 'zookeeper:zk-node'
 include 'zookeeper:zk-common'
