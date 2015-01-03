@@ -49,36 +49,6 @@ public class Main
 		ZooKeeper zookeeper = new ZooKeeper(Paths.get(System.getenv().getOrDefault("ZOO_DIR", "/opt/zookeeper")),
 		                                    registry, idGenerator);
 
-		try
-		{
-			zookeeper.configure();
-		}
-		catch (IOException | ZkException e)
-		{
-			LOG.error("Error configuring ZooKeeper", e);
-			System.exit(1);
-		}
-
-		try
-		{
-			zookeeper.launch();
-		}
-		catch (IOException | ZkException e)
-		{
-			LOG.error("Error starting ZooKeeper", e);
-			System.exit(1);
-		}
-
-		try
-		{
-			zookeeper.waitFor();
-		}
-		catch (InterruptedException e)
-		{
-			LOG.error("Error waiting for ZooKeeper to complete", e);
-			System.exit(1);
-		}
-
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try
 			{
@@ -95,5 +65,38 @@ public class Main
 				LOG.error("Error closing etcd connection", e);
 			}
 		}));
+
+		try
+		{
+			zookeeper.configure();
+			LOG.debug("Configured ZooKeeper");
+		}
+		catch (IOException | ZkException e)
+		{
+			LOG.error("Error configuring ZooKeeper", e);
+			System.exit(1);
+		}
+
+		try
+		{
+			zookeeper.launch();
+			LOG.debug("Launched ZooKeeper");
+		}
+		catch (IOException | ZkException e)
+		{
+			LOG.error("Error starting ZooKeeper", e);
+			System.exit(1);
+		}
+
+		try
+		{
+			int exit = zookeeper.waitFor();
+			LOG.info("ZooKeeper exited with code {}", exit);
+		}
+		catch (InterruptedException e)
+		{
+			LOG.error("Error waiting for ZooKeeper to complete", e);
+			System.exit(1);
+		}
 	}
 }
