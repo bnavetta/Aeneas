@@ -1,0 +1,17 @@
+#!/bin/sh
+
+function destroy_node {
+	id=$1
+	container_name="zk-node-$id"
+
+	docker rm $container_name
+}
+if [[ "$#" -eq 0 ]]; then
+	for i in $(seq 1 5); do
+		destroy_node $i
+	done
+else
+	for i in $@; do
+		destroy_node $i
+	done
+fi

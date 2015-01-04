@@ -1,0 +1,25 @@
+#!/bin/sh
+
+function create_node {
+	id=$1
+	container_name="zk-node-$1"
+	peer_port=$((2870 + id))
+	election_port=$((3870 + id))
+	client_port=$((2170 + id))
+
+	docker create --name="$container_name" --net=host \
+		   -e PEER_PORT=$peer_port \
+		   -e ELECTION_PORT=$election_port \
+		   -e CLIENT_PORT=$client_port \
+		   zookeeper-node
+}
+
+if [[ "$#" -eq 0 ]]; then
+	for i in $(seq 1 5);do
+		create_node $i
+	done
+else
+	for i in $@; do
+		create_node $i
+	done
+fi

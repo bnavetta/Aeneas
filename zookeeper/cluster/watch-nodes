@@ -1,0 +1,32 @@
+#!/bin/sh
+
+session=zk-cluster
+
+function start_session {
+	if ! tmux has-session -t $session 2> /dev/null; then
+		tmux new-session -d -s $session
+	fi
+}
+
+function watch_node {
+	id=$1
+	container_name="zk-node-$1"
+	window_name="node-$1"
+
+	if ! tmux list-windows -t $session -F '#{window_name}' | grep "^$window_name\$" > /dev/null; then
+		tmux new-window -t $session -n $window_name "docker logs -f $container_name"
+	fi
+}
+
+start_session
+if [[ "$#" -eq 0 ]]; then
+	for i in $(seq 1 5); do
+		watch_node $i
+	done
+else
+	for i in $@; do
+		watch_node $i
+	done
+fi
+
+echo "tmux attach -t $session"

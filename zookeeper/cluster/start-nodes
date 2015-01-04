@@ -1,0 +1,18 @@
+#!/bin/sh
+
+function start_node {
+	id=$1
+	container_name="zk-node-$id"
+
+	docker start $container_name
+}
+
+if [[ "$#" -eq 0 ]]; then
+	for i in $(seq 1 5); do
+		start_node $i
+	done
+else
+	for i in $@; do
+		start_node $i
+	done
+fi

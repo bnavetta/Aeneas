@@ -109,12 +109,23 @@ public class EtcdServerRegistryWatcher implements ServerRegistryWatcher
 				{
 					LOG.error("Unable to deserialize server", e);
 				}
+				catch (Throwable t)
+				{
+					LOG.error("Error handling server addition", t);
+				}
 				break;
 			case delete:
 			case expire:
 				int serverId = Integer.parseInt(response.node.key.substring(response.node.key.lastIndexOf('/') + 1));
 				LOG.debug("Server removed: {}", serverId);
-				listener.serverRemoved(serverId);
+				try
+				{
+					listener.serverRemoved(serverId);
+				}
+				catch (Throwable t)
+				{
+					LOG.error("Error handling server removal", t);
+				}
 				break;
 			default:
 				break;

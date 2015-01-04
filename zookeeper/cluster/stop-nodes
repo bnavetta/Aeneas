@@ -1,0 +1,18 @@
+#!/bin/sh
+
+function stop_node {
+	id=$1
+	container_name="zk-node-$1"
+
+	docker stop $container_name
+}
+
+if [[ "$#" -eq 0 ]]; then
+	for i in $(seq 1 5); do
+		stop_node $i
+	done
+else
+	for i in $@; do
+		stop_node $i
+	done
+fi
