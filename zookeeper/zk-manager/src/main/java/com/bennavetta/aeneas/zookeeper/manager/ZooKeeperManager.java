@@ -63,15 +63,15 @@ public class ZooKeeperManager implements Watcher, ServerRegistryWatcher.Listener
 		}
 	}
 
-	public void startMonitoring()
+	public void startMonitoring() throws ZkException
 	{
 		watcher = registry.watch(this);
-		watcher.start();
+		watcher.watch();
 	}
 
 	public void stopMonitoring()
 	{
-		watcher.stop();
+		watcher.stopWatching();
 	}
 
 	public void synchronizeMembers() throws ZkException

@@ -16,16 +16,20 @@
 package com.bennavetta.aeneas.zookeeper.impl.etcd;
 
 import com.bennavetta.aeneas.zookeeper.ServerRegistryWatcher;
+import com.bennavetta.aeneas.zookeeper.ZkException;
 import com.bennavetta.aeneas.zookeeper.ZkServer;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.requests.EtcdKeyGetRequest;
+import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -51,83 +55,69 @@ public class EtcdServerRegistryWatcher implements ServerRegistryWatcher
 	}
 
 	@Override
-	public void start()
+	public void watch() throws ZkException
 	{
 		running.set(true);
-		watchOnce(-1);
+		try
+		{
+			doWatch();
+		}
+		catch (IOException | TimeoutException | EtcdException e)
+		{
+			throw new ZkException("Unable to wait for etcd changes", e);
+		}
 
 	}
 
 	@Override
-	public void stop()
+	public void stopWatching()
 	{
 		running.set(false);
 	}
 
-	private void watchOnce(long index)
+	private void doWatch() throws IOException, TimeoutException, EtcdException
 	{
-		EtcdKeyGetRequest request = etcd.getDir(EtcdServerRegistry.REGISTRY_DIR).recursive();
-		if(index == -1)
-		{
-			request.waitForChange();
-		}
-		else
-		{
-			request.waitForChange(index);
-		}
+		long waitIndex = 0;
 
-		try
+		while(running.get())
 		{
-			request.send().addListener(promise -> {
-				EtcdKeysResponse response = promise.getNow();
-				LOG.info("Change {}: {} {}", response.etcdIndex, response.action, response.node.key);
+			EtcdKeysResponse response = etcd.getDir(EtcdServerRegistry.REGISTRY_DIR)
+			                                .recursive()
+			                                .waitForChange(waitIndex)
+			                                .send()
+			                                .get();
+
+			LOG.info("Change {}: {} {}", response.etcdIndex, response.action, response.node.key);
+
+			try
+			{
 				handle(response);
-				if(running.get())
-				{
-					watchOnce(response.etcdIndex);
-				}
-			});
-		}
-		catch (IOException e)
-		{
-			LOG.error("Error watching for registry changes", e);
+			}
+			catch(Throwable t)
+			{
+				LOG.error("Registry watch listener threw an exception", t);
+			}
+
+			waitIndex = response.node.modifiedIndex + 1;
 		}
 	}
 
-	private void handle(EtcdKeysResponse response)
+	private void handle(EtcdKeysResponse response) throws IOException
 	{
 		switch (response.action)
 		{
 			case set:
 			case create:
 			case update:
-				try
-				{
-					ZkServer server = objectMapper.readValue(response.node.value, ZkServer.class);
-					LOG.debug("Server added: {}", server);
-					listener.serverAdded(server);
-				}
-				catch (IOException e)
-				{
-					LOG.error("Unable to deserialize server", e);
-				}
-				catch (Throwable t)
-				{
-					LOG.error("Error handling server addition", t);
-				}
+				ZkServer server = objectMapper.readValue(response.node.value, ZkServer.class);
+				LOG.debug("Server added: {}", server);
+				listener.serverAdded(server);
 				break;
 			case delete:
 			case expire:
 				int serverId = Integer.parseInt(response.node.key.substring(response.node.key.lastIndexOf('/') + 1));
 				LOG.debug("Server removed: {}", serverId);
-				try
-				{
-					listener.serverRemoved(serverId);
-				}
-				catch (Throwable t)
-				{
-					LOG.error("Error handling server removal", t);
-				}
+				listener.serverRemoved(serverId);
 				break;
 			default:
 				break;

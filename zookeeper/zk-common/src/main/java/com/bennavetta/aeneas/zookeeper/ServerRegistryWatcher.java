@@ -21,14 +21,15 @@ package com.bennavetta.aeneas.zookeeper;
 public interface ServerRegistryWatcher
 {
 	/**
-	 * Start watching for changes in the background.
+	 * Start watching for changes. This method blocks the calling
+	 * thread until {@link #stopWatching()} is called.
 	 */
-	public void start();
+	public void watch() throws ZkException;
 
 	/**
 	 * Stop watching.
 	 */
-	public void stop();
+	public void stopWatching();
 
 	/**
 	 * Returns {@code true} if the watcher is running.
