@@ -53,7 +53,7 @@ public class EtcdServerRegistryWatcher implements ServerRegistryWatcher
 	@Override
 	public void start()
 	{
-		running.compareAndSet(false, true);
+		running.set(true);
 		watchOnce(-1);
 
 	}
@@ -61,7 +61,7 @@ public class EtcdServerRegistryWatcher implements ServerRegistryWatcher
 	@Override
 	public void stop()
 	{
-		running.compareAndSet(true, false);
+		running.set(false);
 	}
 
 	private void watchOnce(long index)
@@ -79,10 +79,12 @@ public class EtcdServerRegistryWatcher implements ServerRegistryWatcher
 		try
 		{
 			request.send().addListener(promise -> {
-				handle(promise.getNow());
+				EtcdKeysResponse response = promise.getNow();
+				LOG.info("Change {}: {} {}", response.etcdIndex, response.action, response.node.key);
+				handle(response);
 				if(running.get())
 				{
-					watchOnce(promise.getNow().etcdIndex);
+					watchOnce(response.etcdIndex);
 				}
 			});
 		}
