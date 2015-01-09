@@ -76,7 +76,15 @@ allprojects {
 
 	plugins.withId('de.gesellix.docker') {
 		docker {
-			dockerHost = System.env.DOCKER_HOST.replaceAll("^tcp://", "http://")
+
+			if(System.env.DOCKER_HOST)
+			{
+				dockerHost = System.env.DOCKER_HOST.replaceAll("^tcp://", "http://")
+			}
+			else
+			{
+				println "DOCKER_HOST environment variable not set"
+			}
 		}
 	}
 }
