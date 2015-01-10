@@ -1,3 +1,18 @@
+/**
+ * Copyright 2015 Benjamin Navetta
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.bennavetta.aeneas.mesos.master;
 
 import com.google.common.base.Joiner;
@@ -45,6 +60,15 @@ public final class MesosMaster
 	public void setQuorumSize(int size)
 	{
 		setOption("quorum", String.valueOf(size));
+	}
+
+	/**
+	 * Where to store the persistent information stored in the Registry.
+	 * @param workDir a directory path
+	 */
+	public void setWorkDir(String workDir)
+	{
+		setOption("work_dir", workDir);
 	}
 
 	/**
@@ -105,6 +129,8 @@ public final class MesosMaster
 	        .command(command)
 	        .redirectError(System.err)
 	        .redirectOutput(System.out)
+			.environment(System.getenv()) // Mesos will load configuration from the environment
+			.environment("MESOS_VERSION", "false") // Mesos would add '--version=<mesos version>', which doesn't make any sense
 	        .destroyOnExit()
 	        .start().getProcess();
 	}
