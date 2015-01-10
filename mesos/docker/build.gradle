@@ -1,0 +1,12 @@
+import de.gesellix.gradle.docker.tasks.*
+
+plugins {
+	id 'de.gesellix.docker' version '2015-01-06T18-26-22'
+}
+task dockerImage(type: DockerBuildTask) {
+	imageName = 'mesos'
+	buildContextDirectory = projectDir
+}
+
+build.dependsOn dockerImage
+

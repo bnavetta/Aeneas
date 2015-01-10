@@ -1,0 +1,123 @@
+package com.bennavetta.aeneas.mesos.master;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zeroturnaround.exec.ProcessExecutor;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *  Launch a Mesos master instance
+ *  @see <a href="http://mesos.apache.org/documentation/latest/configuration/">Mesos Configuration</a>
+ */
+public final class MesosMaster
+{
+	private static final Logger LOG = LoggerFactory.getLogger(MesosMaster.class);
+
+	private final Map<String, String> configuration = Maps.newHashMap();
+	private final Path masterExecutable;
+
+	private Process process;
+
+	/**
+	 * Create a new Mesos master handler that will run the given {@code mesos-master} executable.
+	 * @param masterExecutable the path to {@code mesos-master}
+	 */
+	public MesosMaster(Path masterExecutable)
+	{
+		this.masterExecutable = Preconditions.checkNotNull(masterExecutable);
+	}
+
+	/**
+	 * The size of the quorum of replicas when using 'replicated_log' based registry. It is imperative to set this
+	 * value to be a majority of masters i.e., quorum > (number of masters)/2.
+	 *
+	 * @param size the quorum size
+	 */
+	public void setQuorumSize(int size)
+	{
+		setOption("quorum", String.valueOf(size));
+	}
+
+	/**
+	 * IP address to listen on
+	 * @param ip an IP address
+	 */
+	public void setIp(String ip)
+	{
+		setOption("ip", ip);
+	}
+
+	/**
+	 * Port to listen on (master default: 5050 and slave default: 5051)
+	 * @param port a port number
+	 */
+	public void setPort(int port)
+	{
+		setOption("port", String.valueOf(port));
+	}
+
+	/**
+	 * ZooKeeper URL (used for leader election amongst masters) May be one of:
+	 * <ul>
+	 *     <li>zk://host1:port1,host2:port2,.../path</li>
+	 *     <li>zk://username:password@host1:port1,host2:port2,.../path</li>
+	 *     <li>file://path/to/file (where file contains one of the above)</li>
+	 * </ul>
+	 * @param connection a ZooKeeper connection string
+	 */
+	public void setZk(String connection)
+	{
+		setOption("zk", connection);
+	}
+
+	public void setOption(String name, String value)
+	{
+		configuration.put(name, value);
+	}
+
+	private static ImmutableList<String> toCommandLineFlags(Map<String, String> config)
+	{
+		ImmutableList.Builder<String> flags = ImmutableList.builder();
+		config.forEach((key, value) -> {
+			flags.add("--" + key + "=" + value);
+		});
+		return flags.build();
+	}
+
+	public void launch() throws IOException
+	{
+		Preconditions.checkState(process == null, "Mesos master already running");
+		ImmutableList<String> flags = toCommandLineFlags(configuration);
+		List<String> command = Lists.newArrayList(masterExecutable.toAbsolutePath().toString());
+		command.addAll(flags);
+
+		LOG.info("Starting Mesos master with command line '{}'", Joiner.on(' ').join(command));
+		process = new ProcessExecutor()
+	        .command(command)
+	        .redirectError(System.err)
+	        .redirectOutput(System.out)
+	        .destroyOnExit()
+	        .start().getProcess();
+	}
+
+	public void kill()
+	{
+		Preconditions.checkState(process != null, "Mesos master not running");
+		process.destroy();
+	}
+
+	public int waitFor() throws InterruptedException
+	{
+		Preconditions.checkState(process != null, "Mesos master not running");
+		return process.waitFor();
+	}
+}

@@ -1,0 +1,31 @@
+import de.gesellix.gradle.docker.tasks.*
+
+plugins {
+	id 'java'
+	id 'us.kirchmeier.capsule' version '0.10.0'
+	id 'io.spring.dependency-management' version '0.3.0.RELEASE'
+	id 'de.gesellix.docker' version '2015-01-06T18-26-22'
+}
+
+dependencies {
+	compile project(':zookeeper:zk-common')
+
+	compile 'org.zeroturnaround:zt-exec'
+	compile 'com.google.guava:guava'
+	compile 'org.slf4j:slf4j-simple'
+	compile 'org.slf4j:slf4j-api'
+}
+
+task capsule(type: FatCapsule) {
+	applicationClass 'com.bennavetta.aeneas.mesos.master.Main'
+}
+
+task dockerImage(type: DockerBuildTask) {
+	dependsOn capsule
+	dependsOn ':mesos:docker:dockerImage'
+	imageName = 'mesos-master'
+	buildContextDirectory = projectDir
+	inputs.file capsule.archivePath
+}
+
+build.dependsOn dockerImage
