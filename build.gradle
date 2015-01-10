@@ -45,6 +45,8 @@ allprojects {
 				'com.google.guava:guava' '18.+'
 				'com.netflix.exhibitor:exhibitor-core' '1.5.2'
 
+				'org.zeroturnaround:zt-exec' '1.7+'
+
 				dependencySet(group: 'org.slf4j', version: '1.7.+') {
 					entry 'slf4j-api'
 					entry 'slf4j-simple'

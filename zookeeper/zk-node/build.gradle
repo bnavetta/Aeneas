@@ -10,7 +10,7 @@ plugins {
 dependencies {
 	compile project(':zookeeper:zk-common')
 
-	compile 'org.zeroturnaround:zt-exec:1.7+'
+	compile 'org.zeroturnaround:zt-exec'
 	compile 'com.google.guava:guava'
 
 	compile 'org.slf4j:slf4j-simple'
