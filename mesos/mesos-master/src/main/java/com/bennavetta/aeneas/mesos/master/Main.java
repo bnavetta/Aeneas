@@ -50,10 +50,12 @@ public final class Main
 			Path masterExecutable = mesosPrefix.resolve("sbin/mesos-master");
 
 			MesosMaster master = new MesosMaster(masterExecutable);
+
 			master.setIp(getLocalAddress().getHostAddress());
 			master.setPort(5050);
 			master.setWorkDir("/var/lib/mesos/master");
-			master.setZk(Servers.toConnectionString(true, registry.getServers(), "/aeneas/mesos"));
+			master.setZk(Servers.toConnectionString(true, registry.getServers(), "aeneas/mesos"));
+			master.configureFromEnvironment();
 
 			LOG.info("Starting Mesos master");
 			master.launch();

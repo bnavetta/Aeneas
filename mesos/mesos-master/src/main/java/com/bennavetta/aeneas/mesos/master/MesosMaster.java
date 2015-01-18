@@ -17,9 +17,7 @@ package com.bennavetta.aeneas.mesos.master;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -108,6 +106,22 @@ public final class MesosMaster
 		configuration.put(name, value);
 	}
 
+	public void configureFromEnvironment()
+	{
+		final ImmutableSet<String> ignoredKeys = ImmutableSet.of("version", "download_sha1", "download_url");
+
+		System.getenv().forEach((key, value) -> {
+			if(key.startsWith("MESOS_"))
+			{
+				String argName = key.substring(6).toLowerCase();
+				if(!ignoredKeys.contains(argName))
+				{
+					setOption(argName, value);
+				}
+			}
+		});
+	}
+
 	private static ImmutableList<String> toCommandLineFlags(Map<String, String> config)
 	{
 		ImmutableList.Builder<String> flags = ImmutableList.builder();
@@ -120,17 +134,17 @@ public final class MesosMaster
 	public void launch() throws IOException
 	{
 		Preconditions.checkState(process == null, "Mesos master already running");
-		ImmutableList<String> flags = toCommandLineFlags(configuration);
-		List<String> command = Lists.newArrayList(masterExecutable.toAbsolutePath().toString());
-		command.addAll(flags);
 
-		LOG.info("Starting Mesos master with command line '{}'", Joiner.on(' ').join(command));
+		ImmutableMap.Builder<String, String> environment = ImmutableMap.<String, String>builder();
+		configuration.forEach((key, value) -> environment.put("MESOS_" + key.toUpperCase(), value));
+		environment.put("MESOS_VERSION", "false"); // Mesos interprets the Dockerfile environment variable as the '--version' flag
+
+		LOG.info("Starting Mesos master '{}' with configuration {}", masterExecutable, environment.build());
 		process = new ProcessExecutor()
-	        .command(command)
+	        .command(masterExecutable.toAbsolutePath().toString())
 	        .redirectError(System.err)
 	        .redirectOutput(System.out)
-			.environment(System.getenv()) // Mesos will load configuration from the environment
-			.environment("MESOS_VERSION", "false") // Mesos would add '--version=<mesos version>', which doesn't make any sense
+	        .environment(environment.build())
 	        .destroyOnExit()
 	        .start().getProcess();
 	}
