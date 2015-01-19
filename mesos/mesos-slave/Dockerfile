@@ -6,8 +6,6 @@ RUN apt-get update \
 
 ADD build/libs/mesos-slave-capsule.jar /opt/mesos-slave.jar
 
-EXPOSE 5051
-
 # Required for Docker-in-Docker
 VOLUME /var/lib/docker
 

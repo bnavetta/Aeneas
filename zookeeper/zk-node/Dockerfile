@@ -16,8 +16,4 @@ ADD build/libs/zk-node-capsule.jar /opt/node.jar
 RUN mkdir /var/lib/zookeeper
 VOLUME /var/lib/zookeeper
 
-EXPOSE 2888
-EXPOSE 3888
-EXPOSE 2181
-
 CMD ["java", "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug", "-jar", "/opt/node.jar"]
