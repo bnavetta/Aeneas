@@ -47,15 +47,17 @@ public abstract class AeneasCommand implements Runnable
 
 	public final void run()
 	{
+		int exitStatus = 0;
 		try
 		{
 			initializeClients();
-			execute();
+			exitStatus = execute();
 		}
 		finally
 		{
 			destroyClients();
 		}
+		System.exit(exitStatus);
 	}
 
 	private void initializeClients()
@@ -104,5 +106,5 @@ public abstract class AeneasCommand implements Runnable
 		}
 	}
 
-	protected abstract void execute();
+	protected abstract int execute();
 }

@@ -40,7 +40,7 @@ public class ListNodes extends AeneasCommand
 	public boolean serverConfig;
 
 	@Override
-	protected void execute()
+	protected int execute()
 	{
 		try
 		{
@@ -78,11 +78,13 @@ public class ListNodes extends AeneasCommand
 				}
 				System.out.println(table);
 			}
+			
+			return 0;
 		}
 		catch (ZkException e)
 		{
 			System.err.println("Error retrieving ZooKeeper cluster: " + e.getLocalizedMessage());
-			System.exit(1);
+			return 1;
 		}
 	}
 }

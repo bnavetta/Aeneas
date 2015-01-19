@@ -15,29 +15,40 @@
  */
 package com.bennavetta.aeneas.cli;
 
-import com.bennavetta.aeneas.cli.zookeeper.ListNodes;
+import java.util.logging.LogManager;
+
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.airlift.airline.Cli;
 import io.airlift.airline.Cli.CliBuilder;
 import io.airlift.airline.help.Help;
+
+import com.bennavetta.aeneas.cli.zookeeper.CreateNodes;
+import com.bennavetta.aeneas.cli.zookeeper.ListNodes;
 
 /**
  * Entry point for Aeneas' command line utility.
  */
 public class Main
 {
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args)
 	{
 		System.setProperty("org.slf4j.simpleLogger.log.mousio.etcd4j.transport.EtcdNettyClient", "error");
+		System.setProperty("org.slf4j.simpleLogger.log.org.glassfish.jersey.filter.LoggingFilter", "error");
+		System.setProperty("org.slf4j.simpleLogger.log.com.github.dockerjava.jaxrs.DockerCmdExecFactoryImpl", "error");
+		
+		LogManager.getLogManager().reset();
+		SLF4JBridgeHandler.install();
 		
 		CliBuilder<Runnable> builder = Cli.<Runnable>builder("aeneas")
 				.withDescription("A dynamic, distributed cloud orchestration system")
 				.withDefaultCommand(Help.class)
-				.withCommand(Help.class);
+				.withCommands(Help.class);
 		
 		builder.withGroup("zookeeper")
 			.withDefaultCommand(ListNodes.class)
-			.withCommands(ListNodes.class);
+			.withCommands(ListNodes.class, CreateNodes.class);
 
 		Cli<Runnable> parser = builder.build();
 		parser.parse(args).run();

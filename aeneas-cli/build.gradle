@@ -14,6 +14,7 @@ dependencies {
 	compile 'com.google.guava:guava'
 	compile 'org.slf4j:slf4j-simple'
 	compile 'org.slf4j:slf4j-api'
+	compile 'org.slf4j:jul-to-slf4j'
 	compile 'com.github.rvesse:airline'
 }
 
