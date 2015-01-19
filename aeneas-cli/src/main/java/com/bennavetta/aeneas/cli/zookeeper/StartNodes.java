@@ -84,7 +84,7 @@ public class StartNodes extends AeneasCommand
 		}
 		
 		dockerClient.startContainerCmd(node)
-//			.withNetworkMode("host")
+			.withNetworkMode("host")
 			.withPortBindings(ports)
 			.exec();
 	}
