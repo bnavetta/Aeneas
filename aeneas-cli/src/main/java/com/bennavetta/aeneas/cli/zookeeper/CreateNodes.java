@@ -68,10 +68,10 @@ public class CreateNodes extends AeneasCommand
 			else
 			{
 				int id = Integer.parseInt(nodeSpec);
-				String containerName = "aeneas-zookeeper-" + id;
-				int peerPort = 2870 + id;
-				int electionPort = 3870 + id;
-				int clientPort = 2170 + id;
+				String containerName = ZooKeeperNodes.containerName(id);
+				int peerPort = ZooKeeperNodes.peerPort(id);
+				int electionPort = ZooKeeperNodes.electionPort(id);
+				int clientPort = ZooKeeperNodes.clientPort(id);
 				
 				System.out.println(createNode(containerName, peerPort, electionPort, clientPort));
 			}
