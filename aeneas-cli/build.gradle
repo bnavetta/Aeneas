@@ -1,0 +1,22 @@
+plugins {
+	id 'java'
+	id 'us.kirchmeier.capsule' version '0.10.0'
+	id 'io.spring.dependency-management' version '0.3.0.RELEASE'
+}
+
+dependencies {
+	compile project(':zookeeper:zk-common')
+	compile 'com.github.docker-java:docker-java'
+
+	compile 'org.mousio:etcd4j'
+	compile 'io.netty:netty-codec-http' // because of how etcd4j sets up dependencies
+
+	compile 'com.google.guava:guava'
+	compile 'org.slf4j:slf4j-simple'
+	compile 'org.slf4j:slf4j-api'
+	compile 'com.beust:jcommander'
+}
+
+task capsule(type: FatCapsule) {
+	applicationClass 'com.bennavetta.aeneas.cli.Main'
+}
