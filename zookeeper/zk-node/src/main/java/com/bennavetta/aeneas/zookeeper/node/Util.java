@@ -15,18 +15,17 @@
  */
 package com.bennavetta.aeneas.zookeeper.node;
 
-import com.bennavetta.aeneas.zookeeper.IdGenerator;
-import com.bennavetta.aeneas.zookeeper.ZkException;
-import com.google.common.base.Charsets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bennavetta.aeneas.zookeeper.IdGenerator;
+import com.bennavetta.aeneas.zookeeper.ZkException;
+import com.google.common.base.Charsets;
 
 /**
  * Static helper methods for running a server.
@@ -34,14 +33,6 @@ import java.nio.file.Paths;
 public class Util
 {
 	private static final Logger LOG = LoggerFactory.getLogger(Util.class);
-
-	public static InetAddress getLocalAddress()  throws IOException
-	{
-		try(Socket socket = new Socket("8.8.8.8", 53))
-		{
-			return socket.getLocalAddress();
-		}
-	}
 
 	/**
 	 * Get the node ID from the ZooKeeper data directory or allocate a new one

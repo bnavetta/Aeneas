@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeroturnaround.exec.ProcessExecutor;
 
+import com.bennavetta.aeneas.Networking;
 import com.bennavetta.aeneas.zookeeper.IdGenerator;
 import com.bennavetta.aeneas.zookeeper.ServerRegistry;
 import com.bennavetta.aeneas.zookeeper.ZkException;
@@ -73,7 +74,7 @@ public class ZooKeeper
 		configuration.addServers(registry);
 		configuration.setMyId(Util.obtainId(idGenerator, configuration));
 
-		String serverAddress = Util.getLocalAddress().getHostAddress();
+		String serverAddress = Networking.getLocalAddress().getHostAddress();
 
 		int peerPort = Integer.parseInt(System.getenv().getOrDefault("PEER_PORT", "2888"));
 		int electionPort = Integer.parseInt(System.getenv().getOrDefault("ELECTION_PORT", "3888"));
