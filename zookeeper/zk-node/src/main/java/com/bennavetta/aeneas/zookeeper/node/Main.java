@@ -15,19 +15,20 @@
  */
 package com.bennavetta.aeneas.zookeeper.node;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+
+import mousio.etcd4j.EtcdClient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bennavetta.aeneas.Etcd;
 import com.bennavetta.aeneas.zookeeper.IdGenerator;
 import com.bennavetta.aeneas.zookeeper.ServerRegistry;
 import com.bennavetta.aeneas.zookeeper.ZkException;
 import com.bennavetta.aeneas.zookeeper.impl.etcd.EtcdIdGenerator;
 import com.bennavetta.aeneas.zookeeper.impl.etcd.EtcdServerRegistry;
-import mousio.etcd4j.EtcdClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.Optional;
 
 /**
  * Launch and register a ZooKeeper node
@@ -38,9 +39,7 @@ public class Main
 
 	public static void main(String[] args)
 	{
-		EtcdClient etcd = Optional.ofNullable(System.getenv("ETCD_SERVER"))
-		                            .map(URI::create).map(EtcdClient::new)
-									.orElseGet(EtcdClient::new);
+		EtcdClient etcd = Etcd.createClient();
 
 		LOG.info("Connected to etcd - {}", etcd.getVersion());
 

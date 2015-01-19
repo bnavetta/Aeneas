@@ -15,16 +15,15 @@
  */
 package com.bennavetta.aeneas.mesos.slave.docker;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zeroturnaround.exec.ProcessExecutor;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Support for Mesos' Docker containerizer

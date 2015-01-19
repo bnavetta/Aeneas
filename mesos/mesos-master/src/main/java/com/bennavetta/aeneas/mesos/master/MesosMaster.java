@@ -15,17 +15,18 @@
  */
 package com.bennavetta.aeneas.mesos.master;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeroturnaround.exec.ProcessExecutor;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 /**
  *  Launch a Mesos master instance
@@ -120,15 +121,6 @@ public final class MesosMaster
 				}
 			}
 		});
-	}
-
-	private static ImmutableList<String> toCommandLineFlags(Map<String, String> config)
-	{
-		ImmutableList.Builder<String> flags = ImmutableList.builder();
-		config.forEach((key, value) -> {
-			flags.add("--" + key + "=" + value);
-		});
-		return flags.build();
 	}
 
 	public void launch() throws IOException

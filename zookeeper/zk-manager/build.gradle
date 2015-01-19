@@ -8,6 +8,7 @@ plugins {
 }
 
 dependencies {
+	compile project(':aeneas-common')
 	compile project(':zookeeper:zk-common')
 	compile('org.apache.zookeeper:zookeeper') {
 		exclude group: 'org.slf4j', module: 'slf4j-log4j12'

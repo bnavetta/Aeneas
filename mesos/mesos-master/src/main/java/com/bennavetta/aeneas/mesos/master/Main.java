@@ -15,21 +15,21 @@
  */
 package com.bennavetta.aeneas.mesos.master;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import mousio.etcd4j.EtcdClient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bennavetta.aeneas.Etcd;
+import com.bennavetta.aeneas.Networking;
 import com.bennavetta.aeneas.zookeeper.ServerRegistry;
 import com.bennavetta.aeneas.zookeeper.Servers;
 import com.bennavetta.aeneas.zookeeper.ZkException;
 import com.bennavetta.aeneas.zookeeper.impl.etcd.EtcdServerRegistry;
-import mousio.etcd4j.EtcdClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
 
 public final class Main
 {
@@ -37,9 +37,7 @@ public final class Main
 
 	public static void main(String[] args) throws IOException
 	{
-		EtcdClient etcd = Optional.ofNullable(System.getenv("ETCD_SERVER"))
-		                          .map(URI::create).map(EtcdClient::new)
-		                          .orElseGet(EtcdClient::new);
+		EtcdClient etcd = Etcd.createClient();
 		LOG.info("Connected to etcd - {}", etcd.getVersion());
 
 		try
@@ -51,7 +49,7 @@ public final class Main
 
 			MesosMaster master = new MesosMaster(masterExecutable);
 
-			master.setIp(getLocalAddress().getHostAddress());
+			master.setIp(Networking.getLocalAddress().getHostAddress());
 			master.setPort(5050);
 			master.setWorkDir("/var/lib/mesos/master");
 			master.setZk(Servers.toConnectionString(true, registry.getServers(), "aeneas/mesos"));
@@ -77,14 +75,6 @@ public final class Main
 			{
 				etcd.close();
 			}
-		}
-	}
-
-	private static InetAddress getLocalAddress()  throws IOException
-	{
-		try(Socket socket = new Socket("8.8.8.8", 53))
-		{
-			return socket.getLocalAddress();
 		}
 	}
 }

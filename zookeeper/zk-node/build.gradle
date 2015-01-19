@@ -9,6 +9,7 @@ plugins {
 
 dependencies {
 	compile project(':zookeeper:zk-common')
+	compile project(':aeneas-common')
 
 	compile 'org.zeroturnaround:zt-exec'
 	compile 'com.google.guava:guava'

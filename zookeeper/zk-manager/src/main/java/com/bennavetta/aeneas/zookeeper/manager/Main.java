@@ -15,16 +15,17 @@
  */
 package com.bennavetta.aeneas.zookeeper.manager;
 
-import com.bennavetta.aeneas.zookeeper.ServerRegistry;
-import com.bennavetta.aeneas.zookeeper.ZkException;
-import com.bennavetta.aeneas.zookeeper.impl.etcd.EtcdServerRegistry;
+import java.io.IOException;
+
 import mousio.etcd4j.EtcdClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Optional;
+import com.bennavetta.aeneas.Etcd;
+import com.bennavetta.aeneas.zookeeper.ServerRegistry;
+import com.bennavetta.aeneas.zookeeper.ZkException;
+import com.bennavetta.aeneas.zookeeper.impl.etcd.EtcdServerRegistry;
 
 public class Main
 {
@@ -32,9 +33,7 @@ public class Main
 	
 	public static void main(String[] args)
 	{
-		EtcdClient etcd = Optional.ofNullable(System.getenv("ETCD_SERVER"))
-		                          .map(URI::create).map(EtcdClient::new)
-		                          .orElseGet(EtcdClient::new);
+		EtcdClient etcd = Etcd.createClient();
 
 		LOG.info("Connected to etcd - {}", etcd.getVersion());
 

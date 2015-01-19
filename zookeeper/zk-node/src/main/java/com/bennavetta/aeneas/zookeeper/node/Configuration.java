@@ -15,22 +15,19 @@
  */
 package com.bennavetta.aeneas.zookeeper.node;
 
-import com.bennavetta.aeneas.zookeeper.IdGenerator;
-import com.bennavetta.aeneas.zookeeper.ServerRegistry;
-import com.bennavetta.aeneas.zookeeper.ZkException;
-import com.google.common.base.Charsets;
-import mousio.etcd4j.responses.EtcdException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.OptionalInt;
 import java.util.Properties;
-import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bennavetta.aeneas.zookeeper.ServerRegistry;
+import com.bennavetta.aeneas.zookeeper.ZkException;
+import com.google.common.base.Charsets;
 
 /**
  * Configures a ZooKeeper instance
