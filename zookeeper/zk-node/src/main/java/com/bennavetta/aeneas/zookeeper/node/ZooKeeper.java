@@ -15,6 +15,14 @@
  */
 package com.bennavetta.aeneas.zookeeper.node;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zeroturnaround.exec.ProcessExecutor;
+
 import com.bennavetta.aeneas.zookeeper.IdGenerator;
 import com.bennavetta.aeneas.zookeeper.ServerRegistry;
 import com.bennavetta.aeneas.zookeeper.ZkException;
@@ -22,16 +30,6 @@ import com.bennavetta.aeneas.zookeeper.ZkServer;
 import com.bennavetta.aeneas.zookeeper.ZkServer.Role;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostSpecifier;
-import mousio.etcd4j.responses.EtcdException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.listener.ProcessListener;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Runs and watches a ZooKeeper instance
