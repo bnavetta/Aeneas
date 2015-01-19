@@ -26,6 +26,7 @@ import io.airlift.airline.help.Help;
 import com.bennavetta.aeneas.cli.zookeeper.CreateNodes;
 import com.bennavetta.aeneas.cli.zookeeper.ListNodes;
 import com.bennavetta.aeneas.cli.zookeeper.StartNodes;
+import com.bennavetta.aeneas.cli.zookeeper.ZooKeeperManager;
 
 /**
  * Entry point for Aeneas' command line utility.
@@ -49,7 +50,7 @@ public class Main
 		
 		builder.withGroup("zookeeper")
 			.withDefaultCommand(ListNodes.class)
-			.withCommands(ListNodes.class, CreateNodes.class, StartNodes.class);
+			.withCommands(ListNodes.class, CreateNodes.class, StartNodes.class, ZooKeeperManager.class);
 
 		Cli<Runnable> parser = builder.build();
 		parser.parse(args).run();

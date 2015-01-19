@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.bennavetta.aeneas.cli.AeneasCommand;
 import com.github.dockerjava.api.NotFoundException;
+import com.github.dockerjava.api.NotModifiedException;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
@@ -52,21 +53,25 @@ public class StartNodes extends AeneasCommand
 			{
 				start(node);
 			}
-			catch(NotFoundException e)
+			catch(NotFoundException | NotModifiedException e)
 			{
+				int id = Integer.parseInt(node);
 				try
 				{
-					int id = Integer.parseInt(node);
 					start(ZooKeeperNodes.containerName(id));
 				}
 				catch(Exception er)
 				{
-					System.err.println("Unable to start container: " + er);
+					System.err.println("Unable to start container " + ZooKeeperNodes.containerName(id));
+					e.printStackTrace();
+					return 1;
 				}
 			}
 			catch(Exception e)
 			{
-				System.err.println("Unable to start container: " + e);
+				System.err.println("Unable to start container");
+				e.printStackTrace();
+				return 1;
 			}
 		}
 		return 0;
