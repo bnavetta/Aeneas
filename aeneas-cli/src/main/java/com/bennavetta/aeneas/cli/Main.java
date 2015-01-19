@@ -28,6 +28,8 @@ import jersey.repackaged.com.google.common.collect.Lists;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.bennavetta.aeneas.cli.mesos.CreateMesosMaster;
+import com.bennavetta.aeneas.cli.mesos.RunMesosSlave;
+import com.bennavetta.aeneas.cli.mesos.StartMesosMaster;
 import com.bennavetta.aeneas.cli.zookeeper.CreateNodes;
 import com.bennavetta.aeneas.cli.zookeeper.ListNodes;
 import com.bennavetta.aeneas.cli.zookeeper.RemoveNodes;
@@ -64,7 +66,7 @@ public class Main
 		
 		builder.withGroup("mesos")
 			.withDescription("Manage Mesos clusters")
-			.withCommands(CreateMesosMaster.class);
+			.withCommands(CreateMesosMaster.class, StartMesosMaster.class, RunMesosSlave.class);
 
 		Cli<Runnable> parser = builder.build();
 		try

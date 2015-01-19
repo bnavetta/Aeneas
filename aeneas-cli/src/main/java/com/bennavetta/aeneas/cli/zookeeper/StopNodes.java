@@ -48,14 +48,14 @@ public class StopNodes extends AeneasCommand
 				}
 				catch(Exception er)
 				{
-					System.err.println("Unable to start container " + ZooKeeperNodes.containerName(id));
+					System.err.println("Unable to stop container " + ZooKeeperNodes.containerName(id));
 					e.printStackTrace();
 					return 1;
 				}
 			}
 			catch(Exception e)
 			{
-				System.err.println("Unable to start container");
+				System.err.println("Unable to stop container");
 				e.printStackTrace();
 				return 1;
 			}
