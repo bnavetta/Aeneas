@@ -15,14 +15,19 @@
  */
 package com.bennavetta.aeneas.cli;
 
+import io.airlift.airline.Cli;
+import io.airlift.airline.Cli.CliBuilder;
+import io.airlift.airline.ParseException;
+import io.airlift.airline.help.Help;
+
+import java.io.IOException;
 import java.util.logging.LogManager;
+
+import jersey.repackaged.com.google.common.collect.Lists;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import io.airlift.airline.Cli;
-import io.airlift.airline.Cli.CliBuilder;
-import io.airlift.airline.help.Help;
-
+import com.bennavetta.aeneas.cli.mesos.CreateMesosMaster;
 import com.bennavetta.aeneas.cli.zookeeper.CreateNodes;
 import com.bennavetta.aeneas.cli.zookeeper.ListNodes;
 import com.bennavetta.aeneas.cli.zookeeper.RemoveNodes;
@@ -51,12 +56,33 @@ public class Main
 				.withCommands(Help.class);
 		
 		builder.withGroup("zookeeper")
+			.withDescription("Manage ZooKeeper clusters")
 			.withDefaultCommand(ListNodes.class)
 			.withCommands(ZooKeeperManager.class, ListNodes.class,
 					CreateNodes.class, StartNodes.class,
 					StopNodes.class, RemoveNodes.class);
+		
+		builder.withGroup("mesos")
+			.withDescription("Manage Mesos clusters")
+			.withCommands(CreateMesosMaster.class);
 
 		Cli<Runnable> parser = builder.build();
-		parser.parse(args).run();
+		try
+		{
+			parser.parse(args).run();
+		}
+		catch(ParseException e)
+		{
+			System.err.println(e.getMessage());
+			try
+			{
+				Help.help(parser.getMetadata(), Lists.newArrayList());
+			}
+			catch (IOException e1)
+			{
+				System.err.println("Error generating usage documentation: " + e1.getMessage());
+			}
+			System.exit(1);
+		}
 	}
 }
