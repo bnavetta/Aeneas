@@ -40,7 +40,7 @@ allprojects {
 	plugins.withId('io.spring.dependency-management') {
 		dependencyManagement {
 			dependencies {
-				'org.mousio:etcd4j' '2.0.+'
+				'org.mousio:etcd4j' '2.1.+'
 				'org.apache.zookeeper:zookeeper' '3.5.+'
 				'com.google.guava:guava' '18.+'
 				'com.netflix.exhibitor:exhibitor-core' '1.5.2'
