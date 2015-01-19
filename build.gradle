@@ -47,7 +47,7 @@ allprojects {
 				'com.github.docker-java:docker-java' '0.10+'
 
 				'org.zeroturnaround:zt-exec' '1.7+'
-				'com.beust:jcommander' '1.47+'
+				'com.github.rvesse:airline' '0.9+'
 
 				dependencySet(group: 'org.slf4j', version: '1.7.+') {
 					entry 'slf4j-api'

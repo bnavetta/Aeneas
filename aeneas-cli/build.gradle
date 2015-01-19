@@ -14,9 +14,11 @@ dependencies {
 	compile 'com.google.guava:guava'
 	compile 'org.slf4j:slf4j-simple'
 	compile 'org.slf4j:slf4j-api'
-	compile 'com.beust:jcommander'
+	compile 'com.github.rvesse:airline'
 }
 
 task capsule(type: FatCapsule) {
 	applicationClass 'com.bennavetta.aeneas.cli.Main'
+	reallyExecutable()
 }
+build.dependsOn capsule
