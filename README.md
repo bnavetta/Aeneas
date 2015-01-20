@@ -75,6 +75,24 @@ Containers can be specified with either shorthand identifiers like `2` or full c
 If the manager is started in the foreground (without the `-d` flag), its logs will be streamed to the console and the container
 will be removed at exit. This is perfectly fine since, unlike the nodes, it has no persistent state.
 
+#### Example: Start a Mesos cluster
+
+```shell
+# Start a ZooKeeper cluster as above
+
+$ aeneas mesos create-master my-master
+$ aeneas mesos start-master my-master
+
+$ aeneas mesos slave &
+$ aeneas mesos slave &
+
+# Later...
+
+$ kill %1 %2
+$ docker stop my-master
+
+```
+
 ### Gradle
 
 Though Aeneas is intended for use with multiple languages and platforms,
